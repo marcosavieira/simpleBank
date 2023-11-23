@@ -6,19 +6,24 @@ import (
 	"fmt"
 )
 
-type Store struct {
-	*Queries
-	db *sql.DB
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, arg TransferTxParans) (TransferTxResult, error)
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+type SQLStore struct {
+	db *sql.DB
+	*Queries
+}
+
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
-func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -51,14 +56,12 @@ type TransferTxResult struct {
 
 var txKey = struct{}{}
 
-func (store *Store) TransferTx(ctx context.Context, arg TransferTxParans) (TransferTxResult, error) {
+func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParans) (TransferTxResult, error) {
 	var result TransferTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		txName := ctx.Value(txKey)
-		fmt.Println(txName)
 		//lint:ignore S1016 Ignore this specific staticcheck warning
 		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
 			FromAccountID: arg.FromAccountID,
@@ -71,7 +74,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParans) (Trans
 
 		result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.FromAccountID,
-			Amount:    arg.Amount,
+			Amount:    -arg.Amount,
 		})
 		if err != nil {
 			return err
@@ -86,9 +89,9 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParans) (Trans
 		}
 		if arg.FromAccountID < arg.ToAccountID {
 
-		result.FromAccount, result.ToAccount, err =	addMoney(ctx, q, arg.FromAccountID, -arg.Amount, arg.ToAccountID, arg.Amount)
+			result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, -arg.Amount, arg.ToAccountID, arg.Amount)
 		} else {
-		result.ToAccount, result.FromAccount, err =	addMoney(ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, -arg.Amount)
+			result.ToAccount, result.FromAccount, err = addMoney(ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, -arg.Amount)
 
 		}
 
@@ -101,14 +104,14 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParans) (Trans
 func addMoney(
 	ctx context.Context,
 	q *Queries,
-	accountID1 int64, 
+	accountID1 int64,
 	amount1 int64,
-	accountID2 int64, 
+	accountID2 int64,
 	amount2 int64,
-) (account1 Account, account2 Account, err error){
+) (account1 Account, account2 Account, err error) {
 
 	account1, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
-		ID: accountID1,
+		ID:     accountID1,
 		Amount: amount1,
 	})
 	if err != nil {
@@ -116,7 +119,7 @@ func addMoney(
 	}
 
 	account2, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
-		ID: accountID2,
+		ID:     accountID2,
 		Amount: amount2,
 	})
 	if err != nil {
