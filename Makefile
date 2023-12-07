@@ -7,16 +7,16 @@ dropdb:
 	docker exec -it postgres12 dropdb simple_bank
 
 migrateup:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
+	migrate -path db/migration -database "postgres://root:hWYIshzFYfqnQV1MC6VFlDYwvaNRBYKz@dpg-closmspoh6hc73bn8v4g-a.oregon-postgres.render.com/simplebank_tujx" -verbose up
 
 migrateup1:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up 1
+	migrate -path db/migration -database "postgres://root:hWYIshzFYfqnQV1MC6VFlDYwvaNRBYKz@dpg-closmspoh6hc73bn8v4g-a.oregon-postgres.render.com/simplebank_tujx" -verbose up 1
 
 migratedown:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down
+	migrate -path db/migration -database "postgres://root:hWYIshzFYfqnQV1MC6VFlDYwvaNRBYKz@dpg-closmspoh6hc73bn8v4g-a.oregon-postgres.render.com/simplebank_tujx" -verbose down
 
 migratedown1:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
+	migrate -path db/migration -database "postgres://root:hWYIshzFYfqnQV1MC6VFlDYwvaNRBYKz@dpg-closmspoh6hc73bn8v4g-a.oregon-postgres.render.com/simplebank_tujx" -verbose down 1
 
 sqlc:
 	sqlc generate
