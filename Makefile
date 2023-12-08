@@ -16,7 +16,7 @@ migratedown:
 	migrate -path db/migration -database "postgres://root:hWYIshzFYfqnQV1MC6VFlDYwvaNRBYKz@dpg-closmspoh6hc73bn8v4g-a.oregon-postgres.render.com/simplebank_tujx" -verbose down
 
 migratedown1:
-	migrate -path db/migration -database "postgres://root:hWYIshzFYfqnQV1MC6VFlDYwvaNRBYKz@dpg-closmspoh6hc73bn8v4g-a.oregon-postgres.render.com/simplebank_tujx" -verbose down 1
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
 
 sqlc:
 	sqlc generate

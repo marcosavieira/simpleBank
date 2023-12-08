@@ -6,6 +6,7 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=hWYIshzFYfqnQV1MC6VFlDYwvaNRBYKz
       - POSTGRES_DB=simplebank_tujx
+
   api:
     build:
       context: .
@@ -16,5 +17,3 @@ services:
       - DB_SOURCE=postgres://root:hWYIshzFYfqnQV1MC6VFlDYwvaNRBYKz@dpg-closmspoh6hc73bn8v4g-a.oregon-postgres.render.com/simplebank_tujx
     depends_on:
       - postgres
-    entrypoint: [ "/app/wait-for.sh", "postgres:5432", "--", "/app/start.sh" ]
-    command: [ "/app/main" ]    
